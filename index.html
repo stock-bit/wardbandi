@@ -4,7 +4,7 @@
   <title>Ward Map</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" /> 
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
   <style>
     body { margin: 0; }
@@ -19,10 +19,44 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <script>
-var map = L.map('map').setView([28.2, 76.6], 12); // adjust center
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  maxZoom: 18
+// Normal map
+var normal = L.tileLayer(
+  'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+  {
+    attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+    subdomains: 'abcd',
+    maxZoom: 19
+  }
+);
+
+// Satellite
+var satellite = L.tileLayer(
+  'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+  {
+    attribution: 'Tiles © Esri',
+    maxZoom: 19
+  }
+);
+
+// Initialize map with normal view
+var map = L.map('map', {
+  center: [28.2, 76.6],
+  zoom: 12,
+  layers: [satellite]
+});
+
+// Toggle control
+var baseMaps = {
+  "Normal Map": normal,
+  "Satellite": satellite
+};
+
+L.control.layers(baseMaps).addTo(map);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+  subdomains: 'abcd',
+  maxZoom: 19
 }).addTo(map);
 
 
@@ -36,12 +70,12 @@ fetch('wards.geojson')
   .then(data => {
 
     L.geoJSON(data, {
-      style: function(feature) {
+     style: function(feature) {
         return {
-          color: "#333",
-          weight: 1,
+          color: "#000",
+          weight: 2,
           fillColor: getColor(),
-          fillOpacity: 0.5
+          fillOpacity: 0.2
         };
       },
 
@@ -52,7 +86,7 @@ fetch('wards.geojson')
 
         layer.on({
           mouseover: function(e) {
-            e.target.setStyle({ fillOpacity: 0.8 });
+            e.target.setStyle({ fillOpacity: 0.1 });
           },
           mouseout: function(e) {
             e.target.setStyle({ fillOpacity: 0.5 });
